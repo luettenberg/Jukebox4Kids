@@ -54,18 +54,18 @@ def playTrack(client, track):
 def printState(printer, client):
     ## Print out MPD stats & disconnect
     print('\nCurrent MPD state:')
-    pp.pprint(client.status())
+    printer.pprint(client.status())
 
     print('\nMusic Library stats:')
-    pp.pprint(client.stats())
+    printer.pprint(client.stats())
 ##
 
 def listPlaylists(printer, client):
-    pp.pprint(client.listplaylists())
+    printer.pprint(client.listplaylists())
 ##
 
 def listCurrentPlaylist(printer, client):
-    pp.pprint(client.paylistinfo())
+    printer.pprint(client.paylistinfo())
 ##
 
 def main():
@@ -92,7 +92,8 @@ def main():
     ## Print out MPD stats & disconnect
     printState(pp,client)
     
-    loadAndPlayPlaylist(client, 'RITS Favs (by elixir046)')
+    listPlaylists(pp,client)
+    #loadAndPlayPlaylist(client, 'RITS Favs (by elixir046)')
     playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
 
     ##client.playlistadd('kaffehausmusik','spotify:user:spotify:playlist:37i9dQZF1DX6KItbiYYmAv')
