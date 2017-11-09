@@ -80,10 +80,10 @@ def listCurrentPlaylist(printer, client):
 def printState(client, action):
   status = client.status()
   state = status.get('state','????').title()
-  actSong = int(status.get('song','0'))
+  actSong = int(status.get('song','0'))+1
   songLength = status.get('playlistlength',-1)
   volume = int(status.get('volume'))
-  print '{:4} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10} \r'.format(state, actSong, songLength, volume, action)  
+  print '{:5} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10} \r'.format(state, actSong, songLength, volume, action)  
 ##
 
 def main():
