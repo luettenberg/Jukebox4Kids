@@ -79,7 +79,7 @@ def listCurrentPlaylist(printer, client):
 
 def printState(client, action):
   status = client.status()
-  state = client.get('state','????')
+  state = status.get('state','????')
   actSong = int(status.get('song','-1'))
   songLength = status.get('playlistlength',-1)
   volume = int(status.get('volume'))
