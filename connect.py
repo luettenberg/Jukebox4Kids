@@ -128,7 +128,9 @@ def main():
         elif prev_ == False:
             if (client.status()['state'] != 'stop') and (int(client.status().get('song','1')) > 1):
              client.previous()
-             print( client.status()['song'] + ' / ' + client.status()['playlistlength'] + '(prev hit)')
+             state = client.status()
+             print '{:>2} / {:>2} @ {:3d} Vol. | Action: {:>4} \r'.format(state['song'], state['playlistlength'], int(state['volume']), 'prev')
+#             print( client.status()['song'] + ' / ' + client.status()['playlistlength'] + '(prev hit)')
             time.sleep(1.0)
             
         elif next_ == False:
