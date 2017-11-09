@@ -79,8 +79,8 @@ def listCurrentPlaylist(printer, client):
 
 def printState(client, action):
   status = client.status()
-  state = status.get('state','????')
-  actSong = int(status.get('song','-1'))
+  state = status.get('state','????').title()
+  actSong = int(status.get('song','0'))
   songLength = status.get('playlistlength',-1)
   volume = int(status.get('volume'))
   print '{:4} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10} \r'.format(state, actSong, songLength, volume, action)  
@@ -137,8 +137,8 @@ def main():
         elif prev_ == False:
             status = client.status();
             state = status.get('state')
-            song = int(status.get('song', 1))
-            if (state != 'stop') and (song > 1):
+            song = int(status.get('song', 0))
+            if (state != 'stop') and (song > 0):
               client.previous()
               printState(client, 'prev') 
             time.sleep(0.2)
