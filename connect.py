@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 # IMPORTS
 import sys
 import pprint
 import RPi.GPIO as GPIO
 import time
-
 
 from mpd import (MPDClient, CommandError)
 from socket import error as SocketError
@@ -83,7 +83,9 @@ def printState(client, action):
   actSong = int(status.get('song','0'))+1
   songLength = status.get('playlistlength',-1)
   volume = int(status.get('volume'))
-  print '{:5} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10} \r'.format(state, actSong, songLength, volume, action)  
+  message = '{:5} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10}'.format(state, actSong, songLength, volume, action)  
+  print('\r' + message, end='')
+  sys.stdout.flush()
 ##
 
 def main():
@@ -105,16 +107,16 @@ def main():
             sys.exit(2)
 
     ## Fancy output
-    pp = pprint.PrettyPrinter(indent=4)
+    #pp = pprint.PrettyPrinter(indent=4)
 
     ## Print out MPD stats & disconnect
     #printState(pp,client)
     
     #listPlaylists(pp,client)
-    print client.status()
+    #print client.status()
     loadPlaylist(client, 'RITS Favs (by elixir046)')
     client.setvol(5)
-    print client.status()
+    #print client.status()
     #playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
 
     ##client.playlistadd('kaffehausmusik','spotify:user:spotify:playlist:37i9dQZF1DX6KItbiYYmAv')
