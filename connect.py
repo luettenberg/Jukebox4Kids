@@ -114,16 +114,19 @@ def main():
         if play_ == False:
             print('Play Pressed')
             client.pause()
+            time.sleep(2.0)
             
         elif prev_ == False:
             print('Prev Pressed')
             client.previous()
+            time.sleep(2.0)
             
         elif next_ == False:
             print('Next Pressed')
             client.next()
+            time.sleep(2.0)
             
-        time.sleep(2.0)
+        
 
 # Script starts here
 if __name__ == "__main__":
