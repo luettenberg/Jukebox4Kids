@@ -102,8 +102,9 @@ def main():
     #printState(pp,client)
     
     #listPlaylists(pp,client)
+    print client.status()
     loadPlaylist(client, 'RITS Favs (by elixir046)')
-    client.setvol(25)
+    client.setvol(5)
     print client.status()
     #playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
 
@@ -117,20 +118,21 @@ def main():
         volDown = GPIO.input(24)
         
         if play_ == False:
-            print('Play Pressed')
-            if client.status()['state'] == 'stop':
+            print('Play Pressed: ' + str(client.status()) )
+            if client.status().get('state','stop') == 'stop':
               client.play()
             else: 
               client.pause()
-            time.sleep(2.0)
+            time.sleep(1.0)
             
         elif prev_ == False:
-            print('Prev Pressed')
-            client.previous()
-            time.sleep(2.0)
+            if (client.status()['state'] != 'stop') and (int(client.status().get('song','1')) > 1):
+             client.previous()
+             print( client.status()['song'] + ' / ' + client.status()['playlistlength'] + '(prev hit)')
+            time.sleep(1.0)
             
         elif next_ == False:
-            print('Next Pressed')
+            print('Next Pressed' + str(client.status()) )
             client.next()
             time.sleep(2.0)
        
