@@ -115,11 +115,11 @@ def main():
             print('Play Pressed')
             client.pause()
             
-        else if prev__ == False:
+        elif prev_ == False:
             print('Prev Pressed')
             client.previous()
             
-        else if prev__ == False:
+        elif next_ == False:
             print('Next Pressed')
             client.next()
 
