@@ -132,8 +132,7 @@ def main():
             else: 
               client.pause()
             time.sleep(0.5)
-            printState(client, 'play/pause')
-            time.sleep(0.5)
+            printState(client, 'prev') 
             
         elif prev_ == False:
             status = client.status();
@@ -141,8 +140,8 @@ def main():
             song = int(status.get('song', 0))
             if (state != 'stop') and (song > 0):
               client.previous()
-              printState(client, 'prev') 
             time.sleep(0.2)
+            printState(client, 'prev') 
             
         elif next_ == False:
             status = client.status();
@@ -150,22 +149,22 @@ def main():
             nextSong = status.get('nextsong', -1)
             if (state != 'stop') and (nextSong != '-1'):
               client.next()
-              printState(client, 'next')
             time.sleep(0.2)
+            printState(client, 'next')
        
         elif volUp == False:
             currentVol = int(client.status()['volume'])
             if currentVol < 100:
               client.setvol(currentVol+1)
-              printState(client, 'volUp')
             time.sleep(0.2)
+            printState(client, 'volUp')
        
         elif volDown == False:
             currentVol = int(client.status()['volume'])
             if currentVol > 0:
               client.setvol(currentVol-1)
-              printState(client, 'volDown')
-            time.sleep(0.2)   
+            time.sleep(0.2)
+            printState(client, 'volDown')
         
 # Script starts here
 if __name__ == "__main__":
