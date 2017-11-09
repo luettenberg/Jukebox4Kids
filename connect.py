@@ -131,19 +131,18 @@ def main():
             client.next()
             time.sleep(2.0)
        
-       elif volUp == False:
+        elif volUp == False:
             print('Increase Volume')
             currentVol = int(client.status()["volume"])
             if(currentVol<100)
              client.setvol(currentVol+1)
        
-       elif volDown == False:
+        elif volDown == False:
             print('Decrease Volume')
             currentVol = int(client.status()["volume"])
             if(currentVol>0)
              client.setvol(currentVol+1)
         
-
 # Script starts here
 if __name__ == "__main__":
     main()
