@@ -15,6 +15,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 HOST = 'localhost'
 PORT = '6600'
@@ -98,10 +100,11 @@ def main():
     pp = pprint.PrettyPrinter(indent=4)
 
     ## Print out MPD stats & disconnect
-    printState(pp,client)
+    #printState(pp,client)
     
-    listPlaylists(pp,client)
+    #listPlaylists(pp,client)
     loadAndPlayPlaylist(client, 'RITS Favs (by elixir046)')
+    client.setVol(50)
     #playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
 
     ##client.playlistadd('kaffehausmusik','spotify:user:spotify:playlist:37i9dQZF1DX6KItbiYYmAv')
@@ -110,6 +113,8 @@ def main():
         play_ = GPIO.input(17)
         prev_ = GPIO.input(22)
         next_ = GPIO.input(27)
+        volUp = GPIO.input(23)
+        volDown = GPIO.input(24)
         
         if play_ == False:
             print('Play Pressed')
@@ -125,7 +130,18 @@ def main():
             print('Next Pressed')
             client.next()
             time.sleep(2.0)
-            
+       
+       elif volUp == False:
+            print('Increase Volume')
+            currentVol = int(client.status()["volume"])
+            if(currentVol<100)
+             client.setvol(currentVol+1)
+       
+       elif volDown == False:
+            print('Decrease Volume')
+            currentVol = int(client.status()["volume"])
+            if(currentVol>0)
+             client.setvol(currentVol+1)
         
 
 # Script starts here
