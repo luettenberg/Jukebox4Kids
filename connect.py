@@ -131,8 +131,9 @@ def main():
               client.play()
             else: 
               client.pause()
+            time.sleep(0.5)
             printState(client, 'play/pause')
-            time.sleep(1.0)
+            time.sleep(0.5)
             
         elif prev_ == False:
             status = client.status();
