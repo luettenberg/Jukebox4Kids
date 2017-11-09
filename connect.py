@@ -47,11 +47,10 @@ def mpdAuth(client, secret):
     return True
 ##
 
-def loadAndPlayPlaylist(client, playlist):
+def loadPlaylist(client, playlist):
     client.stop()
     client.clear()
     client.load(playlist)
-    client.play()
 ##
 
 def playTrack(client, track):
@@ -103,8 +102,9 @@ def main():
     #printState(pp,client)
     
     #listPlaylists(pp,client)
-    loadAndPlayPlaylist(client, 'RITS Favs (by elixir046)')
-    client.setVol(50)
+    loadPlaylist(client, 'RITS Favs (by elixir046)')
+    client.setvol(25)
+    print client.status()
     #playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
 
     ##client.playlistadd('kaffehausmusik','spotify:user:spotify:playlist:37i9dQZF1DX6KItbiYYmAv')
@@ -118,7 +118,10 @@ def main():
         
         if play_ == False:
             print('Play Pressed')
-            client.pause()
+            if client.status()['state'] == 'stop':
+              client.play()
+            else: 
+              client.pause()
             time.sleep(2.0)
             
         elif prev_ == False:
@@ -132,16 +135,16 @@ def main():
             time.sleep(2.0)
        
         elif volUp == False:
-            print('Increase Volume')
-            currentVol = int(client.status()["volume"])
-            if(currentVol<100)
+            currentVol = int(client.status()['volume'])
+            if currentVol < 100:
              client.setvol(currentVol+1)
+            print client.status()['volume']
        
         elif volDown == False:
-            print('Decrease Volume')
-            currentVol = int(client.status()["volume"])
-            if(currentVol>0)
-             client.setvol(currentVol+1)
+            currentVol = int(client.status()['volume'])
+            if currentVol > 0:
+             client.setvol(currentVol-1)
+            print client.status()['volume']
         
 # Script starts here
 if __name__ == "__main__":
