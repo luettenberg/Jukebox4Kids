@@ -77,6 +77,15 @@ def listCurrentPlaylist(printer, client):
     printer.pprint(client.paylistinfo())
 ##
 
+def printState(client, action):
+  status = client.status()
+  state = client.get('state','????')
+  actSong = int(status.get('song','-1'))
+  songLength = status.get('playlistlength',-1)
+  volume = int(status.get('volume'))
+  print '{:4} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10} \r'.format(state, actSong, songLength, volume, action)  
+##
+
 def main():
     ## MPD object instance
     client = MPDClient()
@@ -118,37 +127,44 @@ def main():
         volDown = GPIO.input(24)
         
         if play_ == False:
-            print('Play Pressed: ' + str(client.status()) )
             if client.status().get('state','stop') == 'stop':
               client.play()
             else: 
               client.pause()
+            printState(client, 'play/pause')
             time.sleep(1.0)
             
         elif prev_ == False:
-            if (client.status()['state'] != 'stop') and (int(client.status().get('song','1')) > 1):
-             client.previous()
-             state = client.status()
-             print '{:>2} / {:>2} @ {:3d} Vol. | Action: {:>4} \r'.format(state['song'], state['playlistlength'], int(state['volume']), 'prev')
-#             print( client.status()['song'] + ' / ' + client.status()['playlistlength'] + '(prev hit)')
-            time.sleep(1.0)
+            status = client.status();
+            state = status.get('state')
+            song = int(status.get('song', 1))
+            if (state != 'stop') and (song > 1):
+              client.previous()
+              printState(client, 'prev') 
+            time.sleep(0.2)
             
         elif next_ == False:
-            print('Next Pressed' + str(client.status()) )
-            client.next()
-            time.sleep(2.0)
+            status = client.status();
+            state = status.get('state')
+            nextSong = status.get('nextsong', -1)
+            if (state != 'stop') and (nextSong != '-1'):
+              client.next()
+              printState(client, 'next')
+            time.sleep(0.2)
        
         elif volUp == False:
             currentVol = int(client.status()['volume'])
             if currentVol < 100:
-             client.setvol(currentVol+1)
-            print client.status()['volume']
+              client.setvol(currentVol+1)
+              printState(client, 'volUp')
+            time.sleep(0.2)
        
         elif volDown == False:
             currentVol = int(client.status()['volume'])
             if currentVol > 0:
-             client.setvol(currentVol-1)
-            print client.status()['volume']
+              client.setvol(currentVol-1)
+              printState(client, 'volDown')
+            time.sleep(0.2)   
         
 # Script starts here
 if __name__ == "__main__":
