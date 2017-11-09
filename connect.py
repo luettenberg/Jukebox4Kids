@@ -122,6 +122,8 @@ def main():
         elif next_ == False:
             print('Next Pressed')
             client.next()
+            
+        time.sleep(2.0)
 
 # Script starts here
 if __name__ == "__main__":
