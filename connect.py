@@ -11,12 +11,10 @@ import time
 from mpd import (MPDClient, CommandError)
 from socket import error as SocketError
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+# Volume GPIO Ports
+Vol_Enc_A = 12  # Encoder input A: input GPIO 12 (active high)
+Vol_Enc_B = 16  # Encoder input B: input GPIO 16 (active high)
+
 
 HOST = 'localhost'
 PORT = '6600'
@@ -26,6 +24,84 @@ CON_ID = {'host':HOST, 'port':PORT}
 ##  
 
 ## Some functions
+def init():
+
+    GPIO.setwarnings(True)
+
+    GPIO.setmode(GPIO.BCM)
+
+    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+    # define the Encoder switch inputs
+    GPIO.setup(Enc_A, GPIO.IN) # pull-ups are too weak, they introduce noise
+    GPIO.setup(Enc_B, GPIO.IN)
+
+    # setup an event detection thread for the A encoder switch
+    GPIO.add_event_detect(Vol_Enc_A, GPIO.RISING, callback=rotation_decode, bouncetime=2) # bouncetime in mSec
+    #
+    return
+
+
+def rotation_decode(Vol_Enc_A):
+    '''
+    This function decodes the direction of a rotary encoder and in- or
+    decrements a counter.
+
+    The code works from the "early detection" principle that when turning the
+    encoder clockwise, the A-switch gets activated before the B-switch.
+    When the encoder is rotated anti-clockwise, the B-switch gets activated
+    before the A-switch. The timing is depending on the mechanical design of
+    the switch, and the rotational speed of the knob.
+
+    This function gets activated when the A-switch goes high. The code then
+    looks at the level of the B-switch. If the B switch is (still) low, then
+    the direction must be clockwise. If the B input is (still) high, the
+    direction must be anti-clockwise.
+
+    All other conditions (both high, both low or A=0 and B=1) are filtered out.
+
+    To complete the click-cycle, after the direction has been determined, the
+    code waits for the full cycle (from indent to indent) to finish.
+
+    '''
+
+    sleep(0.002) # extra 2 mSec de-bounce time
+
+    # read both of the switches
+    Switch_A = GPIO.input(Vol_Enc_A)
+    Switch_B = GPIO.input(Vol_Enc_B)
+
+    if (Switch_A == 1) and (Switch_B == 0) : # A then B ->
+        changeVolume(+1)
+        # at this point, B may still need to go high, wait for it
+        while Switch_B == 0:
+            Switch_B = GPIO.input(Vol_Enc_B)
+        # now wait for B to drop to end the click cycle
+        while Switch_B == 1:
+            Switch_B = GPIO.input(Vol_Enc_B)
+        return
+
+    elif (Switch_A == 1) and (Switch_B == 1): # B then A <-
+        changeVolume(-1)
+         # A is already high, wait for A to drop to end the click cycle
+        while Switch_A == 1:
+            Switch_A = GPIO.input(Vol_Enc_A)
+        return
+
+    else: # discard all other combinations
+        return
+
+def changeVolume(amount):
+    currentVol = int(client.status()['volume'])
+    newVol = currentVol+amount
+    if (100 >= newVol) and (newVol >= 0):
+        client.setvol(newVol)
+    printState(client, 'volDown')
+    
 def mpdConnect(client, con_id):
     """
     Simple wrapper to connect MPD.
