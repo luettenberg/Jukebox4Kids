@@ -13,8 +13,8 @@ from mpd import (MPDClient, CommandError)
 from socket import error as SocketError
 
 # Volume GPIO Ports
-Vol_Enc_A = 12  # Encoder input A: input GPIO 12 (active high)
-Vol_Enc_B = 16  # Encoder input B: input GPIO 16 (active high)
+Vol_Enc_A = 16  # Encoder input A: input GPIO 12 (active high)
+Vol_Enc_B = 12  # Encoder input B: input GPIO 16 (active high)
 
 
 HOST = 'localhost'
