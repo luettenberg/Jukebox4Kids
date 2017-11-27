@@ -181,7 +181,8 @@ def main():
             print('Error trying to pass auth.')
             client.disconnect()
             sys.exit(2)
-
+    
+    init()
     ## Fancy output
     #pp = pprint.PrettyPrinter(indent=4)
 
