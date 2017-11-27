@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from time import sleep
 
 # IMPORTS
 import sys
@@ -37,8 +38,8 @@ def init():
     GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     # define the Encoder switch inputs
-    GPIO.setup(Enc_A, GPIO.IN) # pull-ups are too weak, they introduce noise
-    GPIO.setup(Enc_B, GPIO.IN)
+    GPIO.setup(Vol_Enc_A, GPIO.IN) # pull-ups are too weak, they introduce noise
+    GPIO.setup(Vol_Enc_B, GPIO.IN)
 
     # setup an event detection thread for the A encoder switch
     GPIO.add_event_detect(Vol_Enc_A, GPIO.RISING, callback=rotation_decode, bouncetime=2) # bouncetime in mSec
@@ -96,6 +97,7 @@ def rotation_decode(Vol_Enc_A):
         return
 
 def changeVolume(amount):
+    client = connect()
     currentVol = int(client.status()['volume'])
     newVol = currentVol+amount
     if (100 >= newVol) and (newVol >= 0):
@@ -164,8 +166,8 @@ def printState(client, action):
   sys.stdout.flush()
 ##
 
-def main():
-    ## MPD object instance
+def connect():
+      ## MPD object instance
     client = MPDClient()
     if mpdConnect(client, CON_ID):
         print('Got connected!')
@@ -181,6 +183,12 @@ def main():
             print('Error trying to pass auth.')
             client.disconnect()
             sys.exit(2)
+    
+    return client
+
+def main():
+    ## MPD object instance
+    client = connect()
     
     init()
     ## Fancy output
