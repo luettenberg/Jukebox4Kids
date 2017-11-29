@@ -1,6 +1,7 @@
 import connect
 import RPi.GPIO as GPIO
 
+
 def init():
     GPIO.setwarnings(True)
 
@@ -9,6 +10,7 @@ def init():
     GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
 
 def main():
 
@@ -19,15 +21,15 @@ def main():
         prev_ = GPIO.input(22)
         next_ = GPIO.input(27)
 
-        if play_ == False:
+        if play_ is False:
             connect.tooglePlay()
 
-        elif prev_ == False:
+        elif prev_ is False:
             connect.playPrev()
 
-        elif next_ == False:
+        elif next_ is False:
             connect.playNext()
 
-# Script starts here
+
 if __name__ == "__main__":
     main()
