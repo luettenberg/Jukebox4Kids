@@ -1,31 +1,24 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+from time import sleep
 
 # IMPORTS
 import sys
 import pprint
-import RPi.GPIO as GPIO
+
 import time
 
 from mpd import (MPDClient, CommandError)
 from socket import error as SocketError
-
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 HOST = 'localhost'
 PORT = '6600'
 PASSWORD = False
 ##
 CON_ID = {'host':HOST, 'port':PORT}
-##  
+##
 
-## Some functions
 def mpdConnect(client, con_id):
     """
     Simple wrapper to connect MPD.
@@ -47,26 +40,76 @@ def mpdAuth(client, secret):
     return True
 ##
 
-def loadPlaylist(client, playlist):
-    client.stop()
-    client.clear()
+def changeVolume(amount):
+    client = connect()
+    changeVolumeInternal(client, amount)
+    disconnect(client)
+
+def changeVolumeInternal(client, amount):
+    currentVol = int(client.status()['volume'])
+    newVol = currentVol+amount
+    if (100 >= newVol) and (newVol >= 0):
+        client.setvol(newVol)
+    printState(client, 'volDown')
+
+
+def tooglePlay():
+    client = connect()
+    tooglePlayInternal(client)
+    disconnect(client)
+
+def tooglePlayInternal(client):
+    if client.status().get('state','stop') == 'stop':
+      client.play()
+    else:
+      client.pause()
+    time.sleep(0.5)
+    printState(client, 'prev')
+
+def playNext():
+    client = connect()
+    playNextInternal(client)
+    disconnect(client)
+
+def playNextInternal(client):
+    status = client.status()
+    state = status.get('state')
+    nextSong = status.get('nextsong', -1)
+    if (state != 'stop') and (nextSong != '-1'):
+      client.next()
+    time.sleep(0.2)
+    printState(client, 'next')
+
+def playPrev():
+    client = connect()
+    playPrevInternal(client)
+    client.close()
+    client.disconnect()
+
+def playPrevInternal(client):
+    status = client.status()
+    state = status.get('state')
+    song = int(status.get('song', 0))
+    if (state != 'stop') and (song > 0):
+      client.previous()
+    time.sleep(0.2)
+    printState(client, 'prev')
+
+def loadPlaylist(playlist):
+    client = connect()
+    reset(client)
     client.load(playlist)
+    disconnect(client)
 ##
 
-def playTrack(client, track):
+def playTrack(track):
+    client = connect();
     client.stop()
     client.clear()
     client.add(track)
     client.play()
-##
-
-def printState(printer, client):
-    ## Print out MPD stats & disconnect
-    print('\nCurrent MPD state:')
-    printer.pprint(client.status())
-
-    print('\nMusic Library stats:')
-    printer.pprint(client.stats())
+    client.close()
+    client.disconnect()
 ##
 
 def listPlaylists(printer, client):
@@ -83,19 +126,25 @@ def printState(client, action):
   actSong = int(status.get('song','0'))+1
   songLength = status.get('playlistlength',-1)
   volume = int(status.get('volume'))
-  message = '{:5} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10}'.format(state, actSong, songLength, volume, action)  
+  message = '{:5} - {:>2} / {:>2} @ {:03d} Vol. | Action: {:10}'.format(state, actSong, songLength, volume, action)
   print('\r' + message, end='')
   sys.stdout.flush()
 ##
 
-def main():
-    ## MPD object instance
+def reset(client):
+  client.stop()
+  client.clear()
+
+def disconnect(client):
+  client.close()
+  client.disconnect()
+
+def connect():
+      ## MPD object instance
     client = MPDClient()
-    if mpdConnect(client, CON_ID):
-        print('Got connected!')
-    else:
-        print('fail to connect MPD server.')
-        sys.exit(1)
+    if not mpdConnect(client, CON_ID):
+        print('WARN NOT CONNECTED!')
+  	return null
 
     # Auth if password is set non False
     if PASSWORD:
@@ -106,36 +155,37 @@ def main():
             client.disconnect()
             sys.exit(2)
 
-    ## Fancy output
-    #pp = pprint.PrettyPrinter(indent=4)
+    return client
 
-    ## Print out MPD stats & disconnect
-    #printState(pp,client)
-    
-    #listPlaylists(pp,client)
-    #print client.status()
+def main():
+    ## MPD object instance
+    client = connect()
+
+    init()
+
     loadPlaylist(client, 'RITS Favs (by elixir046)')
+
     client.setvol(5)
     #print client.status()
     #playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
 
     ##client.playlistadd('kaffehausmusik','spotify:user:spotify:playlist:37i9dQZF1DX6KItbiYYmAv')
-  
+
     while True:
         play_ = GPIO.input(17)
         prev_ = GPIO.input(22)
         next_ = GPIO.input(27)
         volUp = GPIO.input(23)
         volDown = GPIO.input(24)
-        
+
         if play_ == False:
             if client.status().get('state','stop') == 'stop':
               client.play()
-            else: 
+            else:
               client.pause()
             time.sleep(0.5)
-            printState(client, 'prev') 
-            
+            printState(client, 'prev')
+
         elif prev_ == False:
             status = client.status();
             state = status.get('state')
@@ -143,8 +193,8 @@ def main():
             if (state != 'stop') and (song > 0):
               client.previous()
             time.sleep(0.2)
-            printState(client, 'prev') 
-            
+            printState(client, 'prev')
+
         elif next_ == False:
             status = client.status();
             state = status.get('state')
@@ -153,21 +203,21 @@ def main():
               client.next()
             time.sleep(0.2)
             printState(client, 'next')
-       
+
         elif volUp == False:
             currentVol = int(client.status()['volume'])
             if currentVol < 100:
               client.setvol(currentVol+1)
             time.sleep(0.2)
             printState(client, 'volUp')
-       
+
         elif volDown == False:
             currentVol = int(client.status()['volume'])
             if currentVol > 0:
               client.setvol(currentVol-1)
             time.sleep(0.2)
             printState(client, 'volDown')
-        
+
 # Script starts here
 if __name__ == "__main__":
     main()
