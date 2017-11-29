@@ -12,6 +12,5 @@ while True:
   delta = encoder.get_steps()
   if delta!=0:
     connect.changeVolume(delta)
-    print "rotate %d" % delta
   else:
     time.sleep(0.05)
