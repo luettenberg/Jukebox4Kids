@@ -99,6 +99,7 @@ def loadPlaylist(playlist):
     client = connect()
     reset(client)
     client.load(playlist)
+    client.play()
     disconnect(client)
 ##
 
@@ -117,7 +118,7 @@ def listPlaylists(printer, client):
 ##
 
 def listCurrentPlaylist(printer, client):
-    printer.pprint(client.paylistinfo())
+    printer.pprint(client.playlistinfo())
 ##
 
 def printState(client, action):
