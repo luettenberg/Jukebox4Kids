@@ -14,10 +14,6 @@ def main():
 
     init()
 
-    loadPlaylist('RITS Favs (by elixir046)')
-    client.setvol(5)
-    #connect.playTrack(client, 'spotify:track:1ocmRsEMI6nO9d9BdQbXNI')
-
     while True:
         play_ = GPIO.input(17)
         prev_ = GPIO.input(22)
