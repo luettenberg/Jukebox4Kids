@@ -42,9 +42,10 @@ def mpdAuth(client, secret):
 
 def changeVolume(amount):
     client = connect()
-    changeVolume(cliemt, amount)
+    changeVolumeInternal(client, amount)
+    disconnect(client)
 
-def changeVolume(client, amount):
+def changeVolumeInternal(client, amount):
     currentVol = int(client.status()['volume'])
     newVol = currentVol+amount
     if (100 >= newVol) and (newVol >= 0):
@@ -53,9 +54,11 @@ def changeVolume(client, amount):
 
 
 def tooglePlay():
-    tooglePlay(connect())
+    client = connect()
+    tooglePlayInternal(client)
+    disconnect(client)
 
-def tooglePlay(client):
+def tooglePlayInternal(client):
     if client.status().get('state','stop') == 'stop':
       client.play()
     else:
@@ -64,9 +67,11 @@ def tooglePlay(client):
     printState(client, 'prev')
 
 def playNext():
-    playNext(connect())
+    client = connect()
+    playNextInternal(client)
+    disconnect(client)
 
-def playNext(client):
+def playNextInternal(client):
     status = client.status()
     state = status.get('state')
     nextSong = status.get('nextsong', -1)
@@ -76,9 +81,12 @@ def playNext(client):
     printState(client, 'next')
 
 def playPrev():
-    playPrev(connect())
+    client = connect()
+    playPrevInternal(client)
+    client.close()
+    client.disconnect()
 
-def playPrev(client):
+def playPrevInternal(client):
     status = client.status()
     state = status.get('state')
     song = int(status.get('song', 0))
@@ -88,10 +96,10 @@ def playPrev(client):
     printState(client, 'prev')
 
 def loadPlaylist(playlist):
-    client = connect();
-    client.stop()
-    client.clear()
+    client = connect()
+    reset(client)
     client.load(playlist)
+    disconnect(client)
 ##
 
 def playTrack(track):
@@ -100,6 +108,8 @@ def playTrack(track):
     client.clear()
     client.add(track)
     client.play()
+    client.close()
+    client.disconnect()
 ##
 
 def listPlaylists(printer, client):
@@ -121,14 +131,20 @@ def printState(client, action):
   sys.stdout.flush()
 ##
 
+def reset(client):
+  client.stop()
+  client.clear()
+
+def disconnect(client):
+  client.close()
+  client.disconnect()
+
 def connect():
       ## MPD object instance
     client = MPDClient()
-    if mpdConnect(client, CON_ID):
-        print('Got connected!')
-    else:
-        print('fail to connect MPD server.')
-        sys.exit(1)
+    if not mpdConnect(client, CON_ID):
+        print('WARN NOT CONNECTED!')
+  	return null
 
     # Auth if password is set non False
     if PASSWORD:
