@@ -1,0 +1,10 @@
+[Unit]
+Description=JukeBox4Kids
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
