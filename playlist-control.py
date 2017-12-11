@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 import sys
+sys.path.insert(0, '/opt/MFRC522-python/')
 import RPi.GPIO as GPIO
+import MFRC522
 import signal
 import connect
-sys.path.insert(0, '/opt/MFRC522-python/')
-import MFRC522
 
 continue_reading = True
-
 
 def end_read(signal, frame):
     """Capture SIGINT for cleanup when the script is aborted"""
@@ -58,3 +57,4 @@ while continue_reading:
         if not (uid is None) and (len(uid) == 5) and (uid != latestUid):
             latestUid = uid
             play(uid, playlists)
+

@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# IMPORTS
+from __future__ import print_function
 import sys
 import time
-from __future__ import print_function
 from time import sleep
 from mpd import (MPDClient, CommandError)
 from socket import error as SocketError
@@ -102,6 +100,7 @@ def loadPlaylist(playlist):
     client = connect()
     reset(client)
     client.load(playlist)
+    client.play()
     disconnect(client)
 
 
