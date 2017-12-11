@@ -28,7 +28,6 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 import subprocess
-import connect
 
 # Raspberry Pi pin configuration:
 RST = None     # on the PiOLED this pin isnt used
@@ -95,9 +94,6 @@ bottom = height-padding
 # Move left to right keeping track of the current x position for drawing shapes.
 x = 2
 
-# Load Icons
-play_img = Image.open("graphics/play.png").convert("RGBA")
-
 # Load default font.
 font = ImageFont.load_default()
 
@@ -116,15 +112,14 @@ while True:
     Current = subprocess.check_output(cmd, shell = True )
     cmd = "mpc status | awk 'FNR == 2 {print $1}'"
     State = subprocess.check_output(cmd, shell = True )
-    cmd = "mpc volume | cut -d\' \' -f2"
+    cmd = "mpc volume | cut -d\':\' -f2"
     Volume = subprocess.check_output(cmd, shell = True )
 
     # Write two lines of text.
 
-    draw.text((x, top),       "Track: " + str(Track),  font=font, fill=255)
-    draw.text((x, top+8),     "Current: " + str(Current), font=font, fill=255)
-    draw.text((x, top+16),    "State: " + str(State),  font=font, fill=255)
-    draw.text((x, top+25),    "Volume: " + str(Volume),  font=font, fill=255)
+    draw.text((x, top+2), '{:7} {:>11}'.format(str(State).strip(), str(Track).strip()),  font=font, fill=255)
+    draw.text((x, top+12), 'Time: {:>15}'.format(str(Current).strip()), font=font, fill=255)
+    draw.text((x, top+22), 'Volume: {:>13}'.format(str(Volume).strip()),  font=font, fill=255)
 
     # Display image.
     disp.image(image)
