@@ -6,13 +6,12 @@ import RPi.GPIO as GPIO
 import MFRC522
 import signal
 import connect
+import time
 
 continue_reading = True
 
 def end_read(signal, frame):
-    """Capture SIGINT for cleanup when the script is aborted"""
     global continue_reading
-    print("Ctrl+C captured, ending read")
     continue_reading = False
     GPIO.cleanup()
 
@@ -27,13 +26,10 @@ def play(uid, playlists):
 
 # Hook the SIGINT
 signal.signal(signal.SIGINT, end_read)
+signal.signal(signal.SIGTERM, end_read)
 
 # Create an object of the class MFRC522
 MIFAREReader = MFRC522.MFRC522()
-
-# Welcome message
-print("Welcome to the MFRC522 data read example")
-print("Press Ctrl-C to stop.")
 
 # Load Playlistfile
 latestUid = None
@@ -57,4 +53,4 @@ while continue_reading:
         if not (uid is None) and (len(uid) == 5) and (uid != latestUid):
             latestUid = uid
             play(uid, playlists)
-
+    time.sleep(0.3)
