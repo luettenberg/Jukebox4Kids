@@ -15,7 +15,9 @@ channels = (PLAY_GPIO, PREV_GPIO, NEXT_GPIO)
 
 def onExit():
     print('Play-Control exiting')
-    GPIO.remove_event_detect(channels)
+    GPIO.remove_event_detect(PLAY_GPIO)
+    GPIO.remove_event_detect(NEXT_GPIO)
+    GPIO.remove_event_detect(PREV_GPIO)
     GPIO.cleanup(channels)
 
 
