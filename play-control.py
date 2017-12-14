@@ -1,6 +1,6 @@
 import connect
 import RPi.GPIO as GPIO
-import atexit
+import signal
 
 # Start configuration.
 PLAY_GPIO = 17
@@ -35,8 +35,8 @@ def onNext(channel):
 def main():
     print('Play-Control starting')
 
-    # Register Exit-Handler
-    atexit.register(onExit)
+    signal.signal(signal.SIGINT, onExit)
+    signal.signal(signal.SIGTERM, onExit)
 
     # Configure GPIO
     GPIO.setwarnings(True)
