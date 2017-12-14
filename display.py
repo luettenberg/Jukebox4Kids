@@ -104,7 +104,7 @@ font = ImageFont.load_default()
 while True:
 
     # Draw a black filled box to clear the image.
-    draw.rectangle((0,0,width,height), outline=0, fill=0)		
+    draw.rectangle((0,0,width,height), outline=0, fill=0)
     # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
     cmd = "mpc status | awk \'FNR == 2 {print $2}\'"
     Track = subprocess.check_output(cmd, shell = True )
@@ -115,8 +115,6 @@ while True:
     cmd = "mpc volume | cut -d\':\' -f2"
     Volume = subprocess.check_output(cmd, shell = True )
 
-    # Write two lines of text.
-
     draw.text((x, top+2), '{:7} {:>11}'.format(str(State).strip(), str(Track).strip()),  font=font, fill=255)
     draw.text((x, top+12), 'Time: {:>15}'.format(str(Current).strip()), font=font, fill=255)
     draw.text((x, top+22), 'Volume: {:>13}'.format(str(Volume).strip()),  font=font, fill=255)
@@ -124,4 +122,4 @@ while True:
     # Display image.
     disp.image(image)
     disp.display()
-    time.sleep(.1)
+    time.sleep(.5)
