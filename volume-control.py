@@ -5,7 +5,7 @@ import gaugette.rotary_encoder
 
 A_PIN = 27  # GPIO 16, PIN 36, WIRING PIN 27
 B_PIN = 26  # GPIO 12, PIN 32, WIRING PIN 26
-STEP_SIZE = 2  # Volumen step size
+STEP_SIZE = 5  # Volumen step size
 INIT_VOLUME = 50
 
 gpio = gaugette.gpio.GPIO()
