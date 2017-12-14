@@ -1,6 +1,7 @@
 import connect
 import RPi.GPIO as GPIO
 import signal
+import time
 
 # Start configuration.
 PLAY_GPIO = 17
@@ -14,6 +15,7 @@ channels = (PLAY_GPIO, PREV_GPIO, NEXT_GPIO)
 
 def onExit():
     print('Play-Control exiting')
+    GPIO.remove_event_detect(channels)
     GPIO.cleanup(channels)
 
 
@@ -54,6 +56,14 @@ def main():
         NEXT_GPIO, GPIO.FALLING, callback=onNext, bouncetime=300)
 
     print('Play-Control started')
+
+    # Endlosschleife
+    try:
+        while True:
+            time.sleep(0.1)
+    except Exception:
+        onExit()
+    onExit()
 
 
 if __name__ == "__main__":
