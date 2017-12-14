@@ -64,7 +64,7 @@ def main():
         while True:
             time.sleep(0.1)
     except Exception:
-        onExit()
+        print('Exception raised - exiting')
     onExit()
 
 
