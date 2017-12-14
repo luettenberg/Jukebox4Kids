@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 import sys
-sys.path.insert(0, '/opt/MFRC522-python/')
 import RPi.GPIO as GPIO
 import MFRC522
 import signal
