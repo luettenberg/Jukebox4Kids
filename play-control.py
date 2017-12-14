@@ -1,34 +1,59 @@
 import connect
 import RPi.GPIO as GPIO
+import atexit
+
+# Start configuration.
+PLAY_GPIO = 17
+PREV_GPIO = 27
+NEXT_GPIO = 22
+# Stop configuration.
+
+# Helper variable with all configured ports
+channels = (PLAY_GPIO, PREV_GPIO, NEXT_GPIO)
 
 
-def init():
-    GPIO.setwarnings(True)
+def onExit():
+    print('Play-Control exiting')
+    GPIO.cleanup(channels)
 
-    GPIO.setmode(GPIO.BCM)
 
-    GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+def onTooglePlayEvent(channel):
+    print('Play-Control executing onTooglePlayEvent')
+    connect.tooglePlay()
+
+
+def onPreviouse(channel):
+    print('Play-Control executing onPreviouse')
+    connect.playPrev()
+
+
+def onNext(channel):
+    print('Play-Control executing onNext')
+    connect.playNext()
 
 
 def main():
+    print('Play-Control starting')
 
-    init()
+    # Register Exit-Handler
+    atexit.register(onExit)
 
-    while True:
-        play_ = GPIO.input(17)
-        prev_ = GPIO.input(22)
-        next_ = GPIO.input(27)
+    # Configure GPIO
+    GPIO.setwarnings(True)
+    GPIO.setmode(GPIO.BCM)
 
-        if play_ is False:
-            connect.tooglePlay()
+    # Setup Channels
+    GPIO.setup(channels, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        elif prev_ is False:
-            connect.playPrev()
+    # Register Callbacks
+    GPIO.add_event_detect(
+        PLAY_GPIO, GPIO.FALLING, callback=onTooglePlayEvent, bouncetime=300)
+    GPIO.add_event_detect(
+        PREV_GPIO, GPIO.FALLING, callback=onPreviouse, bouncetime=300)
+    GPIO.add_event_detect(
+        NEXT_GPIO, GPIO.FALLING, callback=onNext, bouncetime=300)
 
-        elif next_ is False:
-            connect.playNext()
+    print('Play-Control started')
 
 
 if __name__ == "__main__":
