@@ -43,9 +43,20 @@ def changeVolume(amount):
 def changeVolumeInternal(client, amount):
     currentVol = int(client.status()['volume'])
     newVol = currentVol+amount
-    if (100 >= newVol) and (newVol >= 0):
-        client.setvol(newVol)
+    setVolumeInternal(client, newVol)
     printState(client, 'volDown')
+
+
+def setVolume(value):
+    """Set volume on mdp server. Value must be 0 => value <= 100"""
+    client = connect()
+    setVolumeInternal(client, value)
+    disconnect(client)
+
+
+def setVolumeInternal(client, value):
+    if (100 >= value) and (value >= 0):
+        client.setvol(value)
 
 
 def tooglePlay():
