@@ -47,15 +47,15 @@ def main():
     GPIO.setmode(GPIO.BCM)
 
     # Setup Channels
-    GPIO.setup(channels, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(channels, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     # Register Callbacks
     GPIO.add_event_detect(
-        PLAY_GPIO, GPIO.FALLING, callback=onTooglePlayEvent, bouncetime=300)
+        PLAY_GPIO, GPIO.RISING, callback=onTooglePlayEvent, bouncetime=300)
     GPIO.add_event_detect(
-        PREV_GPIO, GPIO.FALLING, callback=onPreviouse, bouncetime=300)
+        PREV_GPIO, GPIO.RISING, callback=onPreviouse, bouncetime=300)
     GPIO.add_event_detect(
-        NEXT_GPIO, GPIO.FALLING, callback=onNext, bouncetime=300)
+        NEXT_GPIO, GPIO.RISING, callback=onNext, bouncetime=300)
 
     print('Play-Control started')
 
