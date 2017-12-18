@@ -5,8 +5,11 @@ import time
 
 # Start configuration.
 PLAY_GPIO = 17
+PLAY_BOUNCE = 1000
 PREV_GPIO = 27
+PREV_BOUNCE = 500
 NEXT_GPIO = 22
+NEXT_BOUNCE = 500
 # Stop configuration.
 
 # Helper variable with all configured ports
@@ -47,15 +50,15 @@ def main():
     GPIO.setmode(GPIO.BCM)
 
     # Setup Channels
-    GPIO.setup(channels, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(channels, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     # Register Callbacks
     GPIO.add_event_detect(
-        PLAY_GPIO, GPIO.RISING, callback=onTooglePlayEvent, bouncetime=300)
+        PLAY_GPIO, GPIO.FALLING, callback=onTooglePlayEvent, bouncetime=PLAY_BOUNCE)
     GPIO.add_event_detect(
-        PREV_GPIO, GPIO.RISING, callback=onPreviouse, bouncetime=300)
+        PREV_GPIO, GPIO.FALLING, callback=onPreviouse, bouncetime=PREV_BOUNCE)
     GPIO.add_event_detect(
-        NEXT_GPIO, GPIO.RISING, callback=onNext, bouncetime=300)
+        NEXT_GPIO, GPIO.FALLING, callback=onNext, bouncetime=NEXT_BOUNCE)
 
     print('Play-Control started')
 
