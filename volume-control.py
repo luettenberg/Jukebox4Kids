@@ -12,7 +12,7 @@ gpio = gaugette.gpio.GPIO()
 encoder = gaugette.rotary_encoder.RotaryEncoder.Worker(gpio, A_PIN, B_PIN)
 encoder.start()
 
-connect.setVolume(INIT_VOLUME)
+#connect.setVolume(INIT_VOLUME)
 
 while True:
     delta = encoder.get_steps()

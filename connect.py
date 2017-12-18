@@ -10,6 +10,8 @@ from socket import error as SocketError
 HOST = 'localhost'
 PORT = '6600'
 PASSWORD = False
+MAX_VOLUME = 100
+MIN_VOLUME = 0
 ##
 CON_ID = {'host': HOST, 'port': PORT}
 ##
@@ -43,6 +45,10 @@ def changeVolume(amount):
 def changeVolumeInternal(client, amount):
     currentVol = int(client.status()['volume'])
     newVol = currentVol+amount
+    if (newVol < 0):
+	newVol = 0
+    elif (newVol > 100):
+	newVol = 100
     setVolumeInternal(client, newVol)
     printState(client, 'volDown')
 
@@ -55,8 +61,11 @@ def setVolume(value):
 
 
 def setVolumeInternal(client, value):
-    if (100 >= value) and (value >= 0):
-        client.setvol(value)
+    if (value < MIN_VOLUME):
+	value = MIN_VOLUME
+    elif (value > MAX_VOLUME):
+   	value = MAX_VOLUME
+    client.setvol(value)
 
 
 def tooglePlay():
