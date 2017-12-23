@@ -12,6 +12,11 @@ ExecStart=/usr/bin/python playlist-control.py
 # Restart the service on non-zero exit code when terminated by a signal other than SIGHUP, S$
 #Restart=on-failure
 WorkingDirectory=/opt/Jukebox4Kids/
+WatchdogSec=30s
+Restart=on-failure
+StartLimitInterval=5min
+StartLimitBurst=4
+StartLimitAction=reboot-force
 
 [Install]
 # This unit should start when app.service is starting

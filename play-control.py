@@ -2,6 +2,7 @@ import connect
 import RPi.GPIO as GPIO
 import signal
 import time
+import sdnotify
 
 # Start configuration.
 PLAY_GPIO = 17
@@ -60,12 +61,17 @@ def main():
     GPIO.add_event_detect(
         NEXT_GPIO, GPIO.FALLING, callback=onNext, bouncetime=NEXT_BOUNCE)
 
+    #Init Service Watchdog
+    n = sdnotify.SystemdNotifier()
+    n.notify('READY=1')
+
     print('Play-Control started')
 
     # Endlosschleife
     try:
         while True:
-            time.sleep(0.1)
+            time.sleep(0.5)
+            n.notify('WATCHDOG=1')
     except Exception:
         print('Exception raised - exiting')
     onExit()

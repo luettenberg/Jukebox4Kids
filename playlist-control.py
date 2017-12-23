@@ -6,6 +6,7 @@ import MFRC522
 import signal
 import connect
 import time
+import sdnotify
 
 continue_reading = True
 
@@ -38,6 +39,10 @@ with open("playlist.txt") as file:
         name, var = line.partition("=")[::2]
         playlists[name.strip()] = var
 
+#Init Service Watchdog
+n = sdnotify.SystemdNotifier()
+n.notify('READY=1')
+
 # This loop keeps checking for chips.
 # If one is near it will get the UID and authenticate
 while continue_reading:
@@ -52,4 +57,6 @@ while continue_reading:
         if not (uid is None) and (len(uid) == 5) and (uid != latestUid):
             latestUid = uid
             play(uid, playlists)
+
+    n.notify('WATCHDOG=1')
     time.sleep(0.3)

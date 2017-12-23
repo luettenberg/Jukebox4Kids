@@ -19,6 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 import time
+import sdnotify
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -101,6 +102,10 @@ font = ImageFont.load_default()
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
 # font = ImageFont.truetype('Minecraftia.ttf', 8)
 
+#Init Service Watchdog
+n = sdnotify.SystemdNotifier()
+n.notify('READY=1')
+
 while True:
 
     # Draw a black filled box to clear the image.
@@ -122,4 +127,6 @@ while True:
     # Display image.
     disp.image(image)
     disp.display()
+
+    n.notify('WATCHDOG=1')
     time.sleep(.5)
