@@ -6,6 +6,7 @@ PartOf=jukebox4kids.service
 After=jukebox4kids.service
 
 [Service]
+Environment=PYTHONUNBUFFERED=true
 # Pretend that the component is running
 ExecStart=/usr/bin/python play-control.py
 # Restart the service on non-zero exit code when terminated by a signal other than SIGHUP, S$
@@ -15,4 +16,3 @@ WorkingDirectory=/opt/Jukebox4Kids/
 [Install]
 # This unit should start when app.service is starting
 WantedBy=jukebox4kids.service
-
