@@ -129,4 +129,4 @@ while True:
     disp.display()
 
     n.notify('WATCHDOG=1')
-    time.sleep(.5)
+    time.sleep(1)
