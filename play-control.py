@@ -1,81 +1,61 @@
 import connect
 import RPi.GPIO as GPIO
-import signal
-import time
-import sdnotify
-
-# Start configuration.
-PLAY_GPIO = 17
-PLAY_BOUNCE = 1000
-PREV_GPIO = 27
-PREV_BOUNCE = 500
-NEXT_GPIO = 22
-NEXT_BOUNCE = 500
-# Stop configuration.
-
-# Helper variable with all configured ports
-channels = (PLAY_GPIO, PREV_GPIO, NEXT_GPIO)
 
 
-def onExit():
-    print('Play-Control exiting')
-    GPIO.remove_event_detect(PLAY_GPIO)
-    GPIO.remove_event_detect(NEXT_GPIO)
-    GPIO.remove_event_detect(PREV_GPIO)
-    GPIO.cleanup(channels)
+class PlayControl:
 
+    # Start configuration.
+    PLAY_GPIO = 17
+    PLAY_BOUNCE = 1000
+    PREV_GPIO = 27
+    PREV_BOUNCE = 500
+    NEXT_GPIO = 22
+    NEXT_BOUNCE = 500
+    # Stop configuration.
 
-def onTooglePlayEvent(channel):
-    print('Play-Control executing onTooglePlayEvent')
-    connect.tooglePlay()
+    # Helper variable with all configured ports
+    channels = (PLAY_GPIO, PREV_GPIO, NEXT_GPIO)
 
+    def __init__(self):
 
-def onPreviouse(channel):
-    print('Play-Control executing onPreviouse')
-    connect.playPrev()
+        print('Play-Control starting')
 
+        # Setup Channels
+        GPIO.setup(self.channels, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-def onNext(channel):
-    print('Play-Control executing onNext')
-    connect.playNext()
+        # Register Callbacks
+        GPIO.add_event_detect(
+            self.PLAY_GPIO, GPIO.FALLING,
+            callback=self.__onTooglePlayEvent,
+            bouncetime=self.PLAY_BOUNCE)
+        GPIO.add_event_detect(
+            self.PREV_GPIO,
+            GPIO.FALLING,
+            callback=self.__onPreviouse,
+            bouncetime=self.PREV_BOUNCE)
+        GPIO.add_event_detect(
+            self.NEXT_GPIO, GPIO.FALLING,
+            callback=self.__onNext,
+            bouncetime=self.NEXT_BOUNCE)
 
+        print('Play-Control started')
 
-def main():
-    print('Play-Control starting')
+    def exit(self):
+        """CleanUp, should be called before program is destroyed"""
+        print('Play-Control exiting')
+        GPIO.remove_event_detect(self.PLAY_GPIO)
+        GPIO.remove_event_detect(self.NEXT_GPIO)
+        GPIO.remove_event_detect(self.PREV_GPIO)
+        GPIO.cleanup(self.channels)
 
-    signal.signal(signal.SIGINT, onExit)
-    signal.signal(signal.SIGTERM, onExit)
+    def __onTooglePlayEvent(channel):
+        print('Play-Control executing onTooglePlayEvent')
+        connect.tooglePlay()
 
-    # Configure GPIO
-    GPIO.setwarnings(True)
-    GPIO.setmode(GPIO.BCM)
+    def __onPreviouse(channel):
+        print('Play-Control executing onPreviouse')
+        connect.playPrev()
 
-    # Setup Channels
-    GPIO.setup(channels, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
-    # Register Callbacks
-    GPIO.add_event_detect(
-        PLAY_GPIO, GPIO.FALLING, callback=onTooglePlayEvent, bouncetime=PLAY_BOUNCE)
-    GPIO.add_event_detect(
-        PREV_GPIO, GPIO.FALLING, callback=onPreviouse, bouncetime=PREV_BOUNCE)
-    GPIO.add_event_detect(
-        NEXT_GPIO, GPIO.FALLING, callback=onNext, bouncetime=NEXT_BOUNCE)
-
-    #Init Service Watchdog
-    n = sdnotify.SystemdNotifier()
-    n.notify('READY=1')
-
-    print('Play-Control started')
-
-    # Endlosschleife
-    try:
-        while True:
-            time.sleep(0.5)
-            n.notify('WATCHDOG=1')
-    except Exception:
-        print('Exception raised - exiting')
-    onExit()
-
-
-if __name__ == "__main__":
-    main()
+    def __onNext(channel):
+        print('Play-Control executing onNext')
+        connect.playNext()

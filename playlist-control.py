@@ -1,62 +1,56 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
-import sys
 import RPi.GPIO as GPIO
 import MFRC522
-import signal
 import connect
 import time
-import sdnotify
-
-continue_reading = True
-
-def end_read(signal, frame):
-    global continue_reading
-    continue_reading = False
-    GPIO.cleanup()
+import threading
 
 
-def play(uid, playlists):
-    rfid = ','.join(str(e) for e in uid)
-    if (rfid in playlists):
-        connect.loadPlaylist(playlists[rfid].strip())
-    else:
-        print("Unkown card detected -> " + rfid)
+class PlaylistControl(threading.Thread):
 
+    continue_reading = True
+    latestUid = None
+    playlists = {}
+    # Create an object of the class MFRC522
+    MIFAREReader = MFRC522.MFRC522()
 
-# Hook the SIGINT
-signal.signal(signal.SIGINT, end_read)
-signal.signal(signal.SIGTERM, end_read)
+    def __init__(self):
+        print("Starting PlaylistControl")
+        threading.Thread.__init__(self)
+        self.loadPlaylist()
+        print("Started PlaylistControl")
 
-# Create an object of the class MFRC522
-MIFAREReader = MFRC522.MFRC522()
+    def play(self, uid, playlists):
+        if (uid != self.latestUid):
+            self.latestUid = uid
+            rfid = ','.join(str(e) for e in uid)
+            if (rfid in playlists):
+                connect.loadPlaylist(playlists[rfid].strip())
+            else:
+                print("Unkown card detected -> " + rfid)
 
-# Load Playlistfile
-latestUid = None
-playlists = {}
-with open("playlist.txt") as file:
-    for line in file:
-        name, var = line.partition("=")[::2]
-        playlists[name.strip()] = var
+    def loadPlaylist(self):
+        with open("playlist.txt") as file:
+            for line in file:
+                name, var = line.partition("=")[::2]
+                self.playlists[name.strip()] = var
 
-#Init Service Watchdog
-n = sdnotify.SystemdNotifier()
-n.notify('READY=1')
+    def run(self):
+        while continue_reading:
+            # Scan for cards
+            (status, TagType) = self.MIFAREReader.MFRC522_Request(
+                self.MIFAREReader.PICC_REQIDL)
 
-# This loop keeps checking for chips.
-# If one is near it will get the UID and authenticate
-while continue_reading:
+            # If we have the UID, continue
+            if status == self.MIFAREReader.MI_OK:
+                # Get the UID of the card
+                (status, uid) = self.MIFAREReader.MFRC522_Anticoll()
+                if not (uid is None) and (len(uid) == 5):
+                    self.play(uid, self.playlists)
 
-    # Scan for cards
-    (status, TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+            time.sleep(0.3)
 
-    # If we have the UID, continue
-    if status == MIFAREReader.MI_OK:
-        # Get the UID of the card
-        (status, uid) = MIFAREReader.MFRC522_Anticoll()
-        if not (uid is None) and (len(uid) == 5) and (uid != latestUid):
-            latestUid = uid
-            play(uid, playlists)
-
-    n.notify('WATCHDOG=1')
-    time.sleep(0.3)
+    def exit(self):
+        global continue_reading
+        continue_reading = False

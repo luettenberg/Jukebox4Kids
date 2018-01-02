@@ -46,9 +46,9 @@ def changeVolumeInternal(client, amount):
     currentVol = int(client.status()['volume'])
     newVol = currentVol+amount
     if (newVol < 0):
-	newVol = 0
+	       newVol = 0
     elif (newVol > 100):
-	newVol = 100
+	       newVol = 100
     setVolumeInternal(client, newVol)
     printState(client, 'volDown')
 

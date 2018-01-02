@@ -2,25 +2,29 @@ import connect
 import time
 import gaugette.gpio
 import gaugette.rotary_encoder
-import sdnotify
+import threading
 
-A_PIN = 27  # GPIO 16, PIN 36, WIRING PIN 27
-B_PIN = 26  # GPIO 12, PIN 32, WIRING PIN 26
-STEP_SIZE = 2  # Volumen step size
 
-gpio = gaugette.gpio.GPIO()
-encoder = gaugette.rotary_encoder.RotaryEncoder.Worker(gpio, A_PIN, B_PIN)
-encoder.start()
+class VolumeControl(threading.Thread):
 
-#Init Service Watchdog
-n = sdnotify.SystemdNotifier()
-n.notify('READY=1')
+    A_PIN = 27.1  # GPIO 16, PIN 36, WIRING PIN 27
+    B_PIN = 26  # GPIO 12, PIN 32, WIRING PIN 26
+    STEP_SIZE = 2  # Volumen step size
+    encoder = None
 
-while True:
-    delta = encoder.get_steps()
-    if delta != 0:
-        connect.changeVolume(STEP_SIZE if delta > 0 else (-1 * STEP_SIZE))
-    else:
-        time.sleep(0.05)
+    def __init__(self):
+        print("Starting PlaylistControl")
+        threading.Thread.__init__(self)
+        gpio = gaugette.gpio.GPIO()
+        self.encoder = gaugette.rotary_encoder.RotaryEncoder.Worker(
+            gpio, self.A_PIN, self.B_PIN)
+        self.encoder.start()
 
-    n.notify('WATCHDOG=1')
+    def run(self):
+        while True:
+            delta = self.encoder.get_steps()
+            if delta != 0:
+                step = self.STEP_SIZE if delta > 0 else (-1 * self.STEP_SIZE)
+                connect.changeVolume(step)
+            else:
+                time.sleep(0.05)
