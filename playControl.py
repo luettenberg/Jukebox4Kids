@@ -51,6 +51,9 @@ class PlayControl:
         GPIO.remove_event_detect(self.PREV_GPIO)
         GPIO.cleanup(self.channels)
 
+    def isHealthy(self):
+        return True
+
     def __onTooglePlayEvent(self, channel):
         print('Play-Control executing onTooglePlayEvent')
         connect.tooglePlay()

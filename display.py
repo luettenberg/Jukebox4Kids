@@ -71,6 +71,9 @@ class Display(threading.Thread):
         self.disp.clear()
         self.disp.display()
 
+    def isHealthy(self):
+        return True
+
     def run(self):
         """Update Display frequently."""
         while True:

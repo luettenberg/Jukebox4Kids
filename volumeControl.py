@@ -20,6 +20,9 @@ class VolumeControl(threading.Thread):
             gpio, self.A_PIN, self.B_PIN)
         self.encoder.start()
 
+    def isHealthy(self):
+        return True
+
     def run(self):
         while True:
             delta = self.encoder.get_steps()

@@ -36,6 +36,9 @@ class PlaylistControl(threading.Thread):
                 name, var = line.partition("=")[::2]
                 self.playlists[name.strip()] = var
 
+    def isHealthy(self):
+        return True
+
     def run(self):
         while self.continue_reading:
             # Scan for cards
