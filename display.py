@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import time
 import Adafruit_SSD1306
 
@@ -33,6 +35,7 @@ class Display(threading.Thread):
     x = 2
 
     def __init__(self, gpio):
+        """Initialize Display."""
         threading.Thread.__init__(self)
 
         # 128x32 display with hardware I2C:

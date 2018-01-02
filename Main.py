@@ -9,9 +9,12 @@ from playControl import PlayControl
 from playlistControl import PlaylistControl
 from display import Display
 
+# Configure GPIO
+GPIO.setwarnings(True)
 GPIO.setmode(GPIO.BOARD)
 
 running = True
+
 
 def exit(signal, frame):
     """Interrupt main loop"""
@@ -19,33 +22,34 @@ def exit(signal, frame):
     global running
     running = False
 
+
 def cleanUp():
-   GPIO.remove_event_detect()
-   GPIO.cleanup()
+    """Cleaning up resources"""
+    GPIO.cleanup()
+
 
 # Hook the SIGINT
 signal.signal(signal.SIGINT, exit)
 signal.signal(signal.SIGTERM, exit)
 
-# Configure GPIO
-GPIO.setwarnings(True)
-GPIO.setmode(GPIO.BOARD)
-
+# Init VolumeControl
 volume = VolumeControl()
 volume.start()
 
+# Init PlayControl
 playControl = PlayControl()
 
+# Init PlaylistControl
 playlistControl = PlaylistControl()
-playlistControl.start();
+playlistControl.start()
 
+# Init Display
 display = Display(GPIO.BOARD)
 display.start()
 
-#Init Service Watchdog
+# Init Service Watchdog
 n = sdnotify.SystemdNotifier()
 n.notify('READY=1')
-
 
 # Endlosschleife
 try:

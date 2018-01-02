@@ -5,11 +5,11 @@ import RPi.GPIO as GPIO
 class PlayControl:
 
     # Start configuration.
-    PLAY_GPIO = 11 # GPIO 17
+    PLAY_GPIO = 11  # GPIO 17
     PLAY_BOUNCE = 1000
-    PREV_GPIO = 13 # GPIO 27
+    PREV_GPIO = 13  # GPIO 27
     PREV_BOUNCE = 500
-    NEXT_GPIO = 15 # GPIO 22
+    NEXT_GPIO = 15  # GPIO 22
     NEXT_BOUNCE = 500
     # Stop configuration.
 
@@ -19,6 +19,9 @@ class PlayControl:
     def __init__(self):
 
         print('Play-Control starting')
+
+        # Set Mode to Board
+        GPIO.setmode(GPIO.BOARD)
 
         # Setup Channels
         GPIO.setup(self.channels, GPIO.IN, pull_up_down=GPIO.PUD_UP)
