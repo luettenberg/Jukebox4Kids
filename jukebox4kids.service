@@ -2,9 +2,17 @@
 Description=JukeBox4Kids
 
 [Service]
-Type=oneshot
-ExecStart=/bin/true
-RemainAfterExit=true
+Environment=PYTHONUNBUFFERED=true
+# Pretend that the component is running
+ExecStart=/usr/bin/python Main.py
+# Restart the service on non-zero exit code when terminated by a signal other than SIGHUP, S$
+#Restart=on-failure
+WorkingDirectory=/opt/Jukebox4Kids/
+WatchdogSec=30s
+Restart=on-failure
+StartLimitInterval=5min
+StartLimitBurst=4
+StartLimitAction=reboot-force
 
 [Install]
 WantedBy=multi-user.target
