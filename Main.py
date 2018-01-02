@@ -4,10 +4,12 @@ import sdnotify
 import time
 import RPi.GPIO as GPIO
 import signal
+import logging
 from volumeControl import VolumeControl
 from playControl import PlayControl
 from playlistControl import PlaylistControl
 from display import Display
+
 
 # Configure GPIO
 GPIO.setwarnings(True)
@@ -34,6 +36,8 @@ signal.signal(signal.SIGTERM, exit)
 
 # Init VolumeControl
 volume = VolumeControl()
+volume.setDaemon(True)
+volume.setName('Volume')
 volume.start()
 
 # Init PlayControl
@@ -41,10 +45,12 @@ playControl = PlayControl()
 
 # Init PlaylistControl
 playlistControl = PlaylistControl()
+playlistControl.setDaemon(True)
 playlistControl.start()
 
 # Init Display
 display = Display(GPIO.BOARD)
+display.setDaemon(True)
 display.start()
 
 # Init Service Watchdog
@@ -55,10 +61,10 @@ n.notify('READY=1')
 try:
     while running:
         time.sleep(1)
-        if (display.started and playlistControl.started and volume.started):
+        if (display.isAlive() and playlistControl.isAlive() and volume.isAlive()):
             n.notify('WATCHDOG=1')
         else:
             print("Not all Components running")
-except Exception:
-    print('Exception raised - exiting')
+except Exception as e:
+	logging.exception("Error in main program")
 cleanUp()
