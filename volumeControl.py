@@ -7,7 +7,7 @@ import threading
 
 class VolumeControl(threading.Thread):
 
-    A_PIN = 27.1  # GPIO 16, PIN 36, WIRING PIN 27
+    A_PIN = 27  # GPIO 16, PIN 36, WIRING PIN 27
     B_PIN = 26  # GPIO 12, PIN 32, WIRING PIN 26
     STEP_SIZE = 2  # Volumen step size
     encoder = None

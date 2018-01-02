@@ -5,11 +5,11 @@ import RPi.GPIO as GPIO
 class PlayControl:
 
     # Start configuration.
-    PLAY_GPIO = 17
+    PLAY_GPIO = 11 # GPIO 17
     PLAY_BOUNCE = 1000
-    PREV_GPIO = 27
+    PREV_GPIO = 13 # GPIO 27
     PREV_BOUNCE = 500
-    NEXT_GPIO = 22
+    NEXT_GPIO = 15 # GPIO 22
     NEXT_BOUNCE = 500
     # Stop configuration.
 
@@ -48,14 +48,14 @@ class PlayControl:
         GPIO.remove_event_detect(self.PREV_GPIO)
         GPIO.cleanup(self.channels)
 
-    def __onTooglePlayEvent(channel):
+    def __onTooglePlayEvent(self, channel):
         print('Play-Control executing onTooglePlayEvent')
         connect.tooglePlay()
 
-    def __onPreviouse(channel):
+    def __onPreviouse(self, channel):
         print('Play-Control executing onPreviouse')
         connect.playPrev()
 
-    def __onNext(channel):
+    def __onNext(self, channel):
         print('Play-Control executing onNext')
         connect.playNext()

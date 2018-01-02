@@ -3,27 +3,43 @@
 import sdnotify
 import time
 import RPi.GPIO as GPIO
-import play-control
-import playlist-control
+import signal
+from volumeControl import VolumeControl
+from playControl import PlayControl
+from playlistControl import PlaylistControl
+from display import Display
 
-def onExit():
-    """cleansup everything"""
-    GPIO.remove_event_detect()
-    GPIO.cleanup()
+GPIO.setmode(GPIO.BOARD)
+
+running = True
+
+def exit(signal, frame):
+    """Interrupt main loop"""
+    print('Exiting')
+    global running
+    running = False
+
+def cleanUp():
+   GPIO.remove_event_detect()
+   GPIO.cleanup()
+
+# Hook the SIGINT
+signal.signal(signal.SIGINT, exit)
+signal.signal(signal.SIGTERM, exit)
 
 # Configure GPIO
 GPIO.setwarnings(True)
-GPIO.setmode(GPIO.BCM)
+GPIO.setmode(GPIO.BOARD)
 
-volume = Volume()
+volume = VolumeControl()
 volume.start()
 
-playControl = new PlayControl()
+playControl = PlayControl()
 
-playlistControl = new PlaylistControl()
+playlistControl = PlaylistControl()
 playlistControl.start();
 
-display = new Display()
+display = Display(GPIO.BOARD)
 display.start()
 
 #Init Service Watchdog
@@ -33,7 +49,7 @@ n.notify('READY=1')
 
 # Endlosschleife
 try:
-    while True:
+    while running:
         time.sleep(1)
         if (display.started and playlistControl.started and volume.started):
             n.notify('WATCHDOG=1')
@@ -41,4 +57,4 @@ try:
             print("Not all Components running")
 except Exception:
     print('Exception raised - exiting')
-onExit()
+cleanUp()

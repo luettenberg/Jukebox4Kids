@@ -32,11 +32,11 @@ class Display(threading.Thread):
     # for drawing shapes.
     x = 2
 
-    def __init__(self):
+    def __init__(self, gpio):
         threading.Thread.__init__(self)
 
         # 128x32 display with hardware I2C:
-        self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=self.RST)
+        self.disp = Adafruit_SSD1306.SSD1306_128_32(rst=self.RST, gpio=gpio)
 
         # Initialize library.
         self.disp.begin()

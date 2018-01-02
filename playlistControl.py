@@ -37,7 +37,7 @@ class PlaylistControl(threading.Thread):
                 self.playlists[name.strip()] = var
 
     def run(self):
-        while continue_reading:
+        while self.continue_reading:
             # Scan for cards
             (status, TagType) = self.MIFAREReader.MFRC522_Request(
                 self.MIFAREReader.PICC_REQIDL)
