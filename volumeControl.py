@@ -1,4 +1,5 @@
 import connect
+import logging
 import time
 import gaugette.gpio
 import gaugette.rotary_encoder
@@ -11,6 +12,8 @@ class VolumeControl(threading.Thread):
     B_PIN = 26  # GPIO 12, PIN 32, WIRING PIN 26
     STEP_SIZE = 2  # Volumen step size
     encoder = None
+    errorCounter = 0
+    maxErros = 10
 
     def __init__(self):
         print("Starting PlaylistControl")
@@ -21,13 +24,18 @@ class VolumeControl(threading.Thread):
         self.encoder.start()
 
     def isHealthy(self):
-        return True
+        return self.errorCounter <= self.maxErros
 
     def run(self):
         while True:
-            delta = self.encoder.get_steps()
-            if delta != 0:
-                step = self.STEP_SIZE if delta > 0 else (-1 * self.STEP_SIZE)
-                connect.changeVolume(step)
-            else:
-                time.sleep(0.05)
+            try:
+                delta = self.encoder.get_steps()
+                if delta != 0:
+                    step = self.STEP_SIZE if delta > 0 else (-1 * self.STEP_SIZE)
+                    connect.changeVolume(step)
+                    self.errorCounter = 0
+                else:
+                    time.sleep(0.05)
+            except Exception as e:
+                logging.exception("Error in volumeControl")
+                self.errorCounter += 1
