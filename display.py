@@ -10,6 +10,7 @@ from PIL import ImageFont
 import subprocess 
 import threading 
 import re 
+import logging
 
 class Display(threading.Thread):
     """Handles visualisation on jukebox display."""
@@ -62,51 +63,59 @@ class Display(threading.Thread):
         return True
 
     def getState(self):
-        cmd = "mpc"
-        state = subprocess.check_output(cmd, shell=True)
-        state = state.decode()
-        lines = state.split("\n")
         current = {'song': "none", 'state': "none", 'currentTrack': "0",
-                   'trackAmount': "0", 'time': "0:00", 'volume': "0"}
-        if (len(lines) >= 3):
-            pattern = re.compile("^\[(.*)\]\s+#(\d+)\/(\d+)\s+([0-5]?\d:[0-5]\d)\/([0-5]?\d:[0-5]\d).*$")
-            match = pattern.match(lines[1])
-            current['song'] = str(lines[0]).strip()
-            current['volume'] = str(lines[2][7:lines[2].find("%")]).strip()
-            current['state'] = str(match.group(1)).strip()
-            current['currentTrack'] = str(match.group(2)).strip()
-            current['trackAmount'] = str(match.group(3)).strip()
-            current['trackPlayed'] = str(match.group(4)).strip()
-            current['trackLength'] = str(match.group(5)).strip()
-        else:
-            current['volume'] = str(lines[0][7:lines[0].find("%")]).strip()
+                   'trackAmount': "0", 'trackPlayed': "0:00", 'volume': "0", 
+                   'trackLength': "0:00"}
+	try:
+	  cmd = "mpc"
+	  state = subprocess.check_output(cmd, shell=True)
+	  state = state.decode()
+	  lines = state.split("\n")
+          if (len(lines) >= 3):
+              pattern = re.compile("^\[(.*)\]\s+#(\d+)\/(\d+)\s+([0-5]?\d:[0-5]\d)\/([0-5]?\d:[0-5]\d).*$")
+              match = pattern.match(lines[1])
+              current['song'] = str(lines[0]).strip()
+              current['volume'] = str(lines[2][7:lines[2].find("%")]).strip()
+              current['state'] = str(match.group(1)).strip()
+              current['currentTrack'] = str(match.group(2)).strip()
+              current['trackAmount'] = str(match.group(3)).strip()
+              current['trackPlayed'] = str(match.group(4)).strip()
+              current['trackLength'] = str(match.group(5)).strip()
+          else:
+              current['volume'] = str(lines[0][7:lines[0].find("%")]).strip()
+        except Exception as e:
+     	  logging.exception("Error parsing State: " + state)
         return current
 
     def run(self):
         """Update Display frequently."""
         while True:
-            # Draw a black filled box to clear the image.
-            self.draw.rectangle((0, 0, self.width, self.height),
+	    try:
+              # Draw a black filled box to clear the image.
+              self.draw.rectangle((0, 0, self.width, self.height),
                                 outline=0, fill=0)
-            state = self.getState()
-            line1 = '[{:5}] {:>11}'.format(
-                str(state['state']).strip(),
-                str(state['currentTrack'] + "/" + state['trackAmount']).strip()
-                )
-            line2 = 'Time: {:>15}'.format(
-                str(state['trackPlayed'] + '/' + state['trackLength']).strip()
-                )
-            line3 = 'Volume: {:>13}'.format(str(state['volume'] + '%').strip())
-            self.draw.text((self.x, self.top+2), line1,
+              state = self.getState()
+              line1 = '[{:5}] {:>11}'.format(
+                  str(state['state']).strip(),
+                  str(state['currentTrack'] + "/" + state['trackAmount']).strip()
+                  )
+              line2 = 'Time: {:>15}'.format(
+                  str(state['trackPlayed'] + '/' + state['trackLength']).strip()
+                  )
+              line3 = 'Volume: {:>13}'.format(str(state['volume'] + '%').strip())
+              self.draw.text((self.x, self.top+2), line1,
                            font=self.font, fill=255)
-            self.draw.text((self.x, self.top+12), line2,
+              self.draw.text((self.x, self.top+12), line2,
                            font=self.font, fill=255)
-            self.draw.text((self.x, self.top+22), line3,
+              self.draw.text((self.x, self.top+22), line3,
                            font=self.font, fill=255)
-            # Display image.
-            self.disp.image(self.image)
-            self.disp.display()
-	    if (state['state']=='playing'):
+              # Display image.
+              self.disp.image(self.image)
+              self.disp.display()
+	    except Exception as e:
+		logging.exception("DISPLAY - Error in main loop")
+            
+            if (state['state']=='playing'):
             	time.sleep(1)
 	    else:
 		time.sleep(10)
