@@ -1,5 +1,6 @@
 [Unit]
 Description=JukeBox4Kids
+After=mopidy.service
 
 [Service]
 Environment=PYTHONUNBUFFERED=true
