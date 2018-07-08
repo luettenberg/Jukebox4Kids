@@ -75,16 +75,16 @@ class Display(threading.Thread):
 	  return current
         
 	if state is None:
-	  logging.error("Mpc state could not be retrieved. Returning default)
+	  logging.error("Mpc state could not be retrieved. Returning default")
 	  return current
 			
 	try:
-	  state = state.decode()
+	  state = state.decode('utf-8')
 	  lines = state.split("\n")
           if (len(lines) >= 3):
               pattern = re.compile("^\[(.*)\]\s+#(\d+)\/(\d+)\s+([0-5]?\d:[0-5]\d)\/([0-5]?\d:[0-5]\d).*$")
               match = pattern.match(lines[1])
-              current['song'] = str(lines[0]).strip()
+              current['song'] = unicode(lines[0]).strip()
               current['volume'] = str(lines[2][7:lines[2].find("%")]).strip()
               current['state'] = str(match.group(1)).strip()
               current['currentTrack'] = str(match.group(2)).strip()
