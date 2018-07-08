@@ -66,9 +66,19 @@ class Display(threading.Thread):
         current = {'song': "none", 'state': "none", 'currentTrack': "0",
                    'trackAmount': "0", 'trackPlayed': "0:00", 'volume': "0", 
                    'trackLength': "0:00"}
+
 	try:
 	  cmd = "mpc"
 	  state = subprocess.check_output(cmd, shell=True)
+	except subprocess.CalledProcessError as e:
+	  logging.exception("Error calling mpc.Returning default infos.")
+	  return current
+        
+	if state is None:
+	  logging.error("Mpc state could not be retrieved. Returning default)
+	  return current
+			
+	try:
 	  state = state.decode()
 	  lines = state.split("\n")
           if (len(lines) >= 3):
@@ -85,6 +95,7 @@ class Display(threading.Thread):
               current['volume'] = str(lines[0][7:lines[0].find("%")]).strip()
         except Exception as e:
      	  logging.exception("Error parsing State: " + state)
+	
         return current
 
     def run(self):
