@@ -119,7 +119,10 @@ def playPrevInternal(client):
 def loadPlaylist(playlist):
     client = connect()
     reset(client)
-    client.load(playlist)
+    if (playlist.startswith("spotify")):
+        client.add(playlist)
+    else:
+       client.load(playlist)
     client.play()
     disconnect(client)
 
